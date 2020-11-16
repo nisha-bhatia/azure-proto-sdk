@@ -2,40 +2,47 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 
 namespace azure_proto_core
 {
     /// <summary>
     /// Structure respresenting a resource type
-    /// TODO: Fill in comparison methods and comparison, equality, and coercion operator overloads
     /// </summary>
     public class ResourceType : IEquatable<ResourceType>, IEquatable<string>, IComparable<ResourceType>, IComparable<string>
     {
         /// <summary>
         /// The "none" resource type
         /// </summary>
-        public static readonly ResourceType None = new ResourceType { Namespace = string.Empty, Type = string.Empty };
+        public static readonly ResourceType None = new ResourceType
+        {
+            Namespace = string.Empty,
+            Type = string.Empty
+        };
 
         private ResourceType()
         {
         }
+
         public ResourceType(string resourceIdOrType)
         {
             Parse(resourceIdOrType);
         }
+
         public string Namespace { get; private set; }
+
         public string Type { get; private set; }
 
-        public ResourceType Parent 
-        { 
+        public ResourceType Parent
+        {
             get
             {
-                var parts = Type.Split(new char[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+                var parts = Type.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length < 2) return ResourceType.None;
-                var list = new List<string>(parts);
+                var list = new List<string>(parts); //ASK: this line is never hit? parts always has length 1
                 list.RemoveAt(list.Count - 1);
                 return new ResourceType($"{Namespace}/{string.Join("/", list.ToArray())}");
-            } 
+            }
         }
 
         internal void Parse(string resourceIdOrType)
@@ -46,10 +53,10 @@ namespace azure_proto_core
                 throw new ArgumentOutOfRangeException(nameof(resourceIdOrType));
             }
 
-            var parts = resourceIdOrType.Split(new char[] {'/'}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var parts = resourceIdOrType.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             if (parts.Count < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(resourceIdOrType));
+                throw new ArgumentOutOfRangeException(nameof(resourceIdOrType));//ASK: how to catch exceptions in Assert
             }
             if (parts.Count == 1)
             {
@@ -71,7 +78,7 @@ namespace azure_proto_core
                 }
 
                 var type = new List<string>();
-                for (int i = 1; i < parts.Count; i+= 2)
+                for (int i = 1; i < parts.Count; i += 2)
                 {
                     type.Add(parts[i]);
                 }
@@ -85,7 +92,7 @@ namespace azure_proto_core
                 Namespace = parts[0];
                 Type = string.Join("/", parts.Skip(Math.Max(0, 1)).Take(parts.Count() - 1));
             }
-            else if (parts.Count %2 == 0)
+            else if (parts.Count % 2 == 0)
             {
                 // primitive resource manager resource id
                 Namespace = "Microsoft.Resources";
@@ -114,13 +121,22 @@ namespace azure_proto_core
 
         public int CompareTo(ResourceType other)
         {
-            throw new NotImplementedException();
+            if (this.ToString() == ResourceType.None && other.ToString() == ResourceType.None)
+                return 0;
+            else if (this.ToString() == ResourceType.None)
+                return -1;
+            return this.ToString().CompareTo(other.ToString());
         }
 
         public int CompareTo(string other)
         {
-            throw new NotImplementedException();
+            if(this.ToString() == ResourceType.None && other == ResourceType.None)
+                return 0;
+            else if (this.ToString() == ResourceType.None)
+                return -1;
+            return this.ToString().CompareTo(other);
         }
+
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
@@ -128,7 +144,7 @@ namespace azure_proto_core
             if (resourceObj != null) return Equals(resourceObj);
             var stringObj = obj as string;
             if (stringObj != null) return Equals(stringObj);
-            return base.Equals(obj);
+            return base.Equals(obj);  //ASK: if it should be false
         }
 
         public override int GetHashCode()
@@ -136,7 +152,7 @@ namespace azure_proto_core
             return ToString().GetHashCode();
         }
 
-        public static implicit operator ResourceType(string other) => new ResourceType(other);
+        public static implicit operator ResourceType(string other) => new ResourceType(other); //ASK: Add null check for all of these?
         public static bool operator ==(ResourceType source, string target) => source.Equals(target);
         public static bool operator ==(string source, ResourceType target) => target.Equals(source);
         public static bool operator ==(ResourceType source, ResourceType target) => source.Equals(target);
