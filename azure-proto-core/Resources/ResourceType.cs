@@ -90,7 +90,7 @@ namespace azure_proto_core
             {
                 // it is a full type name
                 Namespace = parts[0];
-                Type = string.Join("/", parts.Skip(Math.Max(0, 1)).Take(parts.Count() - 1));
+                Type = string.Join("/", parts.Skip(Math.Max(0, 1)).Take(parts.Count() - 1)); //ask Mark?
             }
             else if (parts.Count % 2 == 0)
             {
@@ -144,7 +144,7 @@ namespace azure_proto_core
             if (resourceObj != null) return Equals(resourceObj);
             var stringObj = obj as string;
             if (stringObj != null) return Equals(stringObj);
-            return base.Equals(obj);  //ASK: if it should be false
+            return false;  //ASK: if it should be false
         }
 
         public override int GetHashCode()
@@ -152,7 +152,7 @@ namespace azure_proto_core
             return ToString().GetHashCode();
         }
 
-        public static implicit operator ResourceType(string other) => new ResourceType(other); //ASK: Add null check for all of these?
+        public static implicit operator ResourceType(string other) => new ResourceType(other); //ASK: Add null check for all of these - use Object.Reference Equals?
         public static bool operator ==(ResourceType source, string target) => source.Equals(target);
         public static bool operator ==(string source, ResourceType target) => target.Equals(source);
         public static bool operator ==(ResourceType source, ResourceType target) => source.Equals(target);

@@ -171,8 +171,7 @@ namespace azure_proto_core_test
             object rt1object = new ResourceType("/subscriptions/6b085460-5f21-477e-ba44-1035046e9101/resourceGroups/nbhatia_test");
             Assert.IsTrue(resourceType1.Equals(rt1object));
 
-            object rt1string = resourceType1.ToString();
-            string x = resourceType1.ToString(); 
+            object rt1string = "Microsoft/resourceGroups";
             Assert.IsTrue(resourceType1.Equals(rt1string)); //ASK: how to check equals object
         }
 
@@ -192,7 +191,7 @@ namespace azure_proto_core_test
         public void CheckInvalidParse(string input)
         {
             ResourceType resourceType = new ResourceType(input);
-            //Assert.Catch<ArgumentOutOfRangeException>(new ResourceType(input));//need to catch exception when creating new ResourceType //ASK: Can't catch exception
+            Assert.Catch<ArgumentOutOfRangeException>(resourceType.Parse(input));//need to catch exception when creating new ResourceType //ASK: Can't catch exception
         }
 
         [TestCase("/subscriptions/6b085460-5f21-477e-ba44-1035046e9101/")]
