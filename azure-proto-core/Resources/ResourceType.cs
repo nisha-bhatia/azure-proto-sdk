@@ -56,7 +56,7 @@ namespace azure_proto_core
             var parts = resourceIdOrType.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             if (parts.Count < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(resourceIdOrType));//ASK: how to catch exceptions in Assert
+                throw new ArgumentOutOfRangeException(nameof(resourceIdOrType));
             }
             if (parts.Count == 1)
             {
@@ -144,7 +144,7 @@ namespace azure_proto_core
             if (resourceObj != null) return Equals(resourceObj);
             var stringObj = obj as string;
             if (stringObj != null) return Equals(stringObj);
-            return false;  //ASK: if it should be false
+            return false;
         }
 
         public override int GetHashCode()
